@@ -1,0 +1,75 @@
+from flask import Flask, request, jsonify, render_template
+import os
+import cv2
+import mediapipe as mp
+from werkzeug.utils import secure_filename
+
+app = Flask(__name__)
+
+# Configuração de upload de arquivos
+UPLOAD_FOLDER = 'uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Função para verificar a extensão do arquivo
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# Função para processar a imagem e sugerir características faciais
+def process_image(image_path):
+    image = cv2.imread(image_path)
+    
+    # Inicializar mediapipe face mesh
+    mp_face = mp.solutions.face_mesh
+    face_mesh = mp_face.FaceMesh()
+    
+    img_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    results = face_mesh.process(img_rgb)
+
+    if results.multi_face_landmarks:
+        landmarks = results.multi_face_landmarks[0]
+        # Aqui você pode adaptar para retornar características mais precisas
+        return {
+            'eyes': 'Olhos grandes',
+            'nose': 'Nariz afilado',
+            'mouth': 'Boca pequena',
+            'eyebrow': 'Sobrancelha fina',
+            'contour': 'Contorno suave'
+        }
+    else:
+        return {
+            'eyes': 'Não encontrado',
+            'nose': 'Não encontrado',
+            'mouth': 'Não encontrado',
+            'eyebrow': 'Não encontrado',
+            'contour': 'Não encontrado'
+        }
+
+# Rota principal que renderiza o template HTML
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+# Rota para processar a imagem
+@app.route('/process_image', methods=['POST'])
+def process_image_route():
+    if 'image' not in request.files:
+        return jsonify({"error": "Nenhuma imagem fornecida"}), 400
+
+    image = request.files['image']
+    if image and allowed_file(image.filename):
+        filename = secure_filename(image.filename)
+        image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        image.save(image_path)
+        
+        # Processar a imagem e obter as sugestões
+        suggestions = process_image(image_path)
+        
+        return jsonify(suggestions)
+    else:
+        return jsonify({"error": "Arquivo inválido. Apenas imagens são permitidas."}), 400
+
+if __name__ == '__main__':
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.makedirs(UPLOAD_FOLDER)
+    app.run(debug=True)

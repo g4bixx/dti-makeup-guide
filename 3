@@ -1,0 +1,23 @@
+document.getElementById('uploadForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const formData = new FormData();
+    const imageUpload = document.getElementById('imageUpload').files[0];
+    formData.append("image", imageUpload);
+
+    fetch('/process_image', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('eyes').innerText = data.eyes;
+        document.getElementById('nose').innerText = data.nose;
+        document.getElementById('mouth').innerText = data.mouth;
+        document.getElementById('eyebrow').innerText = data.eyebrow;
+        document.getElementById('contour').innerText = data.contour;
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+    });
+});

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalize seu rosto - Dress to Impress</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Personalize seu rosto para o Dress to Impress</h1>
+        
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" id="imageUpload" name="image" accept="image/*" required>
+            <button type="submit">Enviar Foto</button>
+        </form>
+        
+        <div id="result" class="result">
+            <h3>Características Sugeridas:</h3>
+            <div id="suggestions">
+                <p><strong>Olhos:</strong> <span id="eyes"></span></p>
+                <p><strong>Nosso:</strong> <span id="nose"></span></p>
+                <p><strong>Boca:</strong> <span id="mouth"></span></p>
+                <p><strong>Sobrancelha:</strong> <span id="eyebrow"></span></p>
+                <p><strong>Contorno:</strong> <span id="contour"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
